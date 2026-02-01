@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>売却価格・相場チェッカー | 損しない断捨離ツール</title>
+    <style>
+        :root { --main: #333; --accent: #ff4b2b; --bg: #f0f2f5; }
+        body { font-family: sans-serif; background: var(--bg); padding: 20px; color: #333; }
+        .container { max-width: 600px; margin: auto; }
+        .card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        
+        h2 { font-size: 1.2rem; margin-top: 0; color: var(--main); border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        
+        /* 検索セクション */
+        input[type="text"], input[type="number"], select { 
+            width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 10px; 
+            font-size: 1rem; margin-bottom: 15px; box-sizing: border-box; 
+        }
+        .button-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .search-btn { 
+            padding: 12px; border: none; border-radius: 8px; color: white; 
+            font-weight: bold; cursor: pointer; text-decoration: none; font-size: 0.85rem; 
+            text-align: center; transition: 0.2s;
+        }
+        .mercari { background: #ff4b2b; }
+        .yahoo { background: #ff0033; }
+        .amazon { background: #232f3e; }
+        .bookoff { background: #004bb0; }
+        .surugaya { background: #ff9900; }
+
+        /* 計算セクション */
+        .calc-btn { width: 100%; background: #333; color: white; border: none; padding: 15px; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        #result-area { 
+            margin-top: 20px; padding: 20px; border-radius: 15px; display: none; 
+            text-align: center; border: 4px solid #eee;
+        }
+        .profit-val { font-size: 1.8rem; font-weight: bold; color: var(--accent); }
+        .status-msg { font-size: 0.9rem; color: #666; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <h2>① 相場を調べる</h2>
+        <input type="text" id="keyword" placeholder="商品名を入力（例：Switch 本体）">
+        <div class="button-grid">
+            <button class="search-btn mercari" onclick="search('mercari')">メルカリ</button>
+            <button class="search-btn yahoo" onclick="search('yahoo')">ヤフオク</button>
+            <button class="search-btn amazon" onclick="search('amazon')">Amazon中古</button>
+            <button class="search-btn surugaya" onclick="search('surugaya')">駿河屋</button>
+        </div>
+        <p style="font-size: 0.75rem; color: #999; margin-top: 10px;">※各サイトが別タブで開きます。確認できたらここに戻ってください。</p>
+    </div>
+
+    <div class="card">
+        <h2>② 利益・時給を計算</h2>
+        <label style="font-size: 0.8rem;">販売予定価格 (円)</label>
+        <input type="number" id="price" placeholder="調べた相場を入力">
+        
+        <label style="font-size: 0.8rem;">販売先（手数料）</label>
+        <select id="platform">
+            <option value="0.1">メルカリ / ヤフオク (10%)</option>
+            <option value="0.05">Yahoo!フリマ (5%)</option>
+            <option value="0.088">ヤフオク (プレミアム会員 8.8%)</option>
+        </select>
+
+        <label style="font-size: 0.8rem;">送料＋梱包費 (円)</label>
+        <input type="number" id="shipping" value="750">
+
+        <label style="font-size: 0.8rem;">作業にかかる時間 (分)</label>
+        <input type="number" id="worktime" value="30">
+
+        <button class="calc-btn" onclick="calculate()">利益を算出する</button>
+
+        <div id="result-area">
+            <div style="font-size: 0.8rem;">手元に残る純利益</div>
+            <div id="profit-display" class="profit-val"></div>
+            <div id="wage-display" style="font-size: 1rem; font-weight: bold; margin-top: 5px;"></div>
+            <div id="status-msg" class="status-msg"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function search(type) {
+        const kw = encodeURIComponent(document.getElementById('keyword').value);
+        if(!kw) return alert("キーワードを入力してください");
+        
+        let url = "";
+        switch(type) {
+            case 'mercari': url = `https://jp.mercari.com/search?keyword=${kw}&status=on_sale`; break;
+            case 'yahoo': url = `https://auctions.yahoo.co.jp/search/search?p=${kw}`; break;
+            case 'amazon': url = `https://www.amazon.co.jp/s?k=${kw}&i=used`; break;
+            case 'surugaya': url = `https://www.suruga-ya.jp/search?category=&search_word=${kw}`; break;
+        }
+        window.open(url, '_blank');
+    }
+
+    function calculate() {
+        const price = Number(document.getElementById('price').value);
+        const feeRate = Number(document.getElementById('platform').value);
+        const shipping = Number(document.getElementById('shipping').value);
+        const time = Number(document.getElementById('worktime').value);
+
+        const fee = Math.floor(price * feeRate);
+        const profit = price - fee - shipping;
+        const hourlyWage = Math.round(profit / (time / 60));
+
+        const resultArea = document.getElementById('result-area');
+        resultArea.style.display = 'block';
+        document.getElementById('profit-display').innerText = `${profit.toLocaleString()} 円`;
+        document.getElementById('wage-display').innerText = `推定時給: ${hourlyWage.toLocaleString()} 円`;
+
+        let msg = "";
+        if (hourlyWage < 1000) {
+            msg = "⚠️ 時給が低すぎます！近所のバイトの方が稼げるかも。";
+            resultArea.style.borderColor = "#ff9900";
+        } else if (profit < 0) {
+            msg = "❌ 赤字です！捨てるか寄付を検討しましょう。";
+            resultArea.style.borderColor = "#ff0000";
+        } else {
+            msg = "✅ 優良案件！売却の準備を始めましょう。";
+            resultArea.style.borderColor = "#4caf50";
+        }
+        document.getElementById('status-msg').innerText = msg;
+    }
+</script>
+
+</body>
+</html>
