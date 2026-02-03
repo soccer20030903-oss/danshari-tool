@@ -3,91 +3,188 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>売却価格・相場チェッカー | 損しない断捨離ツール</title>
+    <title>断捨離・相場一括チェッカー | 賢く片付ける主婦・学生の味方</title>
+<link rel="icon" href="icon.png" type="image/png">
+<link rel="apple-touch-icon" href="icon.png">
+<meta name="apple-mobile-web-app-title" content="断捨離チェッカー">
     <style>
-        :root { --main: #333; --accent: #ff4b2b; --bg: #f0f2f5; }
-        body { font-family: sans-serif; background: var(--bg); padding: 20px; color: #333; }
-        .container { max-width: 600px; margin: auto; }
-        .card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        
-        h2 { font-size: 1.2rem; margin-top: 0; color: var(--main); border-bottom: 2px solid #eee; padding-bottom: 10px; }
-        
-        /* 検索セクション */
-        input[type="text"], input[type="number"], select { 
-            width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 10px; 
-            font-size: 1rem; margin-bottom: 15px; box-sizing: border-box; 
+        :root {
+            --primary: #ff4b2b;
+            --secondary: #2c3e50;
+            --success: #2e7d32;
+            --caution: #f57f17;
+            --danger: #c62828;
+            --bg: #fdfdfd;
         }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+            background-color: var(--bg);
+            color: #333;
+            margin: 0; padding: 0;
+            display: flex; flex-direction: column; align-items: center;
+        }
+
+        header {
+            width: 100%;
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            color: white; text-align: center;
+            padding: 2rem 0; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        header h1 { margin: 0; font-size: 1.5rem; }
+        header p { margin: 5px 0 0; font-size: 0.8rem; opacity: 0.9; }
+
+        .container { width: 95%; max-width: 500px; margin: 1.5rem 0; }
+
+        .card {
+            background: #ffffff; border-radius: 20px;
+            padding: 25px; box-shadow: 0 8px 30px rgba(0,0,0,0.05);
+            margin-bottom: 1.5rem; border: 1px solid #eee;
+        }
+
+        h2 {
+            font-size: 1.1rem; margin: 0 0 20px;
+            color: var(--secondary); border-left: 5px solid var(--primary);
+            padding-left: 12px;
+        }
+
+        /* 検索セクション */
+        input[type="text"], input[type="number"], select {
+            width: 100%; padding: 14px; border: 2px solid #f0f0f0;
+            border-radius: 12px; font-size: 1rem; margin-bottom: 15px;
+            box-sizing: border-box; background: #fafafa;
+        }
+        input:focus { border-color: var(--primary); background: #fff; outline: none; }
+
         .button-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .search-btn { 
-            padding: 12px; border: none; border-radius: 8px; color: white; 
-            font-weight: bold; cursor: pointer; text-decoration: none; font-size: 0.85rem; 
-            text-align: center; transition: 0.2s;
+        .search-btn {
+            padding: 14px; border: none; border-radius: 12px;
+            color: white; font-weight: bold; font-size: 0.9rem;
+            cursor: pointer; transition: 0.2s; text-align: center;
         }
         .mercari { background: #ff4b2b; }
         .yahoo { background: #ff0033; }
         .amazon { background: #232f3e; }
-        .bookoff { background: #004bb0; }
         .surugaya { background: #ff9900; }
 
-        /* 計算セクション */
-        .calc-btn { width: 100%; background: #333; color: white; border: none; padding: 15px; border-radius: 10px; font-weight: bold; cursor: pointer; }
-        #result-area { 
-            margin-top: 20px; padding: 20px; border-radius: 15px; display: none; 
-            text-align: center; border: 4px solid #eee;
+        /* 送料クイック選択 */
+        .shipping-presets {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 10px; margin-bottom: 20px;
         }
-        .profit-val { font-size: 1.8rem; font-weight: bold; color: var(--accent); }
-        .status-msg { font-size: 0.9rem; color: #666; margin-top: 10px; }
+        .preset-btn {
+            background: #fff; border: 2px solid #f0f0f0;
+            border-radius: 12px; padding: 12px; font-size: 0.75rem;
+            cursor: pointer; text-align: left; transition: 0.2s;
+        }
+        .preset-btn:hover { border-color: var(--primary); background: #fff5f5; }
+        .preset-btn strong { display: block; color: var(--primary); margin-bottom: 3px; font-size: 0.85rem; }
+
+        .calc-btn {
+            width: 100%; background: #222; color: white;
+            border: none; padding: 18px; border-radius: 12px;
+            font-weight: bold; font-size: 1.2rem; cursor: pointer;
+            margin-top: 10px; transition: 0.3s;
+        }
+        .calc-btn:hover { background: #000; transform: translateY(-2px); }
+
+        /* 結果エリア */
+        #result-area {
+            margin-top: 25px; padding: 25px; border-radius: 20px;
+            display: none; text-align: center; border: 2px solid transparent;
+        }
+        .profit-val { font-size: 2.5rem; font-weight: bold; margin: 10px 0; }
+        .wage-val { font-size: 1.1rem; font-weight: bold; margin-bottom: 15px; opacity: 0.8; }
+        .ai-msg {
+            font-size: 0.9rem; line-height: 1.6;
+            background: rgba(255,255,255,0.8); padding: 15px; border-radius: 15px;
+        }
+
+        /* アフィリエイト・収益化枠 */
+        .affiliate-card {
+            background: #fff9f0; border: 2px dashed #ff9900;
+            border-radius: 20px; padding: 20px; margin-top: 20px; text-align: center;
+        }
+        .affiliate-card h3 { font-size: 1rem; color: #e67e22; margin: 0 0 10px; }
+        .aff-link {
+            display: inline-block; background: #ff9900; color: white;
+            padding: 12px 25px; border-radius: 30px; text-decoration: none;
+            font-weight: bold; font-size: 0.9rem; margin-top: 10px;
+        }
+
+        footer { padding: 3rem 0; color: #bbb; font-size: 0.8rem; text-align: center; }
     </style>
 </head>
 <body>
 
+<header>
+    <h1>断捨離・相場一括チェッカー</h1>
+    <p>家を片付けたい主婦・学生のための「いくらで売れる？」診断</p>
+</header>
+
 <div class="container">
     <div class="card">
-        <h2>① 相場を調べる</h2>
-        <input type="text" id="keyword" placeholder="商品名を入力（例：Switch 本体）">
+        <h2>① 相場をチェックする</h2>
+        <input type="text" id="keyword" placeholder="例：iPhone、参考書、スニーカー">
         <div class="button-grid">
             <button class="search-btn mercari" onclick="search('mercari')">メルカリ</button>
             <button class="search-btn yahoo" onclick="search('yahoo')">ヤフオク</button>
             <button class="search-btn amazon" onclick="search('amazon')">Amazon中古</button>
             <button class="search-btn surugaya" onclick="search('surugaya')">駿河屋</button>
         </div>
-        <p style="font-size: 0.75rem; color: #999; margin-top: 10px;">※各サイトが別タブで開きます。確認できたらここに戻ってください。</p>
     </div>
 
     <div class="card">
-        <h2>② 利益・時給を計算</h2>
-        <label style="font-size: 0.8rem;">販売予定価格 (円)</label>
-        <input type="number" id="price" placeholder="調べた相場を入力">
+        <h2>② 利益・時給を計算する</h2>
         
-        <label style="font-size: 0.8rem;">販売先（手数料）</label>
+        <label style="font-size: 0.8rem; font-weight: bold;">販売予定価格 (円)</label>
+        <input type="number" id="price" placeholder="調べた相場を入力">
+
+        <label style="font-size: 0.8rem; font-weight: bold;">【ガイド】送料を選んでください</label>
+        <div class="shipping-presets">
+            <button class="preset-btn" onclick="setShipping(210)"><strong>210円 (ネコポス)</strong>Tシャツ、アクセ、本</button>
+            <button class="preset-btn" onclick="setShipping(520)"><strong>520円 (コンパクト)</strong>厚手の服、食器など</button>
+            <button class="preset-btn" onclick="setShipping(750)"><strong>750円 (60サイズ)</strong>靴、バッグ、おもちゃ</button>
+            <button class="preset-btn" onclick="setShipping(1050)"><strong>1,050円〜 (大型)</strong>家電、コート、まとめ売り</button>
+        </div>
+
+        <label style="font-size: 0.8rem; font-weight: bold;">送料＋梱包費 合計 (円)</label>
+        <input type="number" id="shipping" value="210">
+
+        <label style="font-size: 0.8rem; font-weight: bold;">販売先の手数料</label>
         <select id="platform">
             <option value="0.1">メルカリ / ヤフオク (10%)</option>
             <option value="0.05">Yahoo!フリマ (5%)</option>
             <option value="0.088">ヤフオク (プレミアム会員 8.8%)</option>
         </select>
 
-        <label style="font-size: 0.8rem;">送料＋梱包費 (円)</label>
-        <input type="number" id="shipping" value="750">
-
-        <label style="font-size: 0.8rem;">作業にかかる時間 (分)</label>
+        <label style="font-size: 0.8rem; font-weight: bold;">作業時間 (分)</label>
         <input type="number" id="worktime" value="30">
 
-        <button class="calc-btn" onclick="calculate()">利益を算出する</button>
+        <button class="calc-btn" onclick="calculate()">利益を診断する</button>
 
         <div id="result-area">
-            <div style="font-size: 0.8rem;">手元に残る純利益</div>
             <div id="profit-display" class="profit-val"></div>
-            <div id="wage-display" style="font-size: 1rem; font-weight: bold; margin-top: 5px;"></div>
-            <div id="status-msg" class="status-msg"></div>
+            <div id="wage-display" class="wage-val"></div>
+            <div id="status-msg" class="ai-msg"></div>
         </div>
     </div>
+
+    <div class="affiliate-card">
+        <h3>📦 出品の必需品を揃えよう</h3>
+        <p style="font-size: 0.8rem; color: #7f8c8d; margin: 0;">送料で損をしないための「厚さ測定定規」や「デジタルはかり」が人気です。</p>
+        <a href=https://amzn.to/4a9f6w3 target="_blank" class="aff-link">Amazonでベストセラーを見る</a>
+    </div>
 </div>
+
+<footer>
+    © 2026 断捨離・相場一括チェッカー - 効率的に家を片付けよう
+</footer>
 
 <script>
     function search(type) {
         const kw = encodeURIComponent(document.getElementById('keyword').value);
-        if(!kw) return alert("キーワードを入力してください");
-        
+        if(!kw) return alert("まずは商品名を入力してください");
         let url = "";
         switch(type) {
             case 'mercari': url = `https://jp.mercari.com/search?keyword=${kw}&status=on_sale`; break;
@@ -98,33 +195,39 @@
         window.open(url, '_blank');
     }
 
+    function setShipping(val) {
+        document.getElementById('shipping').value = val;
+    }
+
     function calculate() {
         const price = Number(document.getElementById('price').value);
         const feeRate = Number(document.getElementById('platform').value);
         const shipping = Number(document.getElementById('shipping').value);
         const time = Number(document.getElementById('worktime').value);
 
+        if(!price) return alert("価格を入力してください");
+
         const fee = Math.floor(price * feeRate);
         const profit = price - fee - shipping;
         const hourlyWage = Math.round(profit / (time / 60));
 
-        const resultArea = document.getElementById('result-area');
-        resultArea.style.display = 'block';
+        const resArea = document.getElementById('result-area');
+        resArea.style.display = 'block';
         document.getElementById('profit-display').innerText = `${profit.toLocaleString()} 円`;
-        document.getElementById('wage-display').innerText = `推定時給: ${hourlyWage.toLocaleString()} 円`;
+        document.getElementById('wage-display').innerText = `出品時給: 約 ${hourlyWage.toLocaleString()} 円`;
 
         let msg = "";
-        if (hourlyWage < 1000) {
-            msg = "⚠️ 時給が低すぎます！近所のバイトの方が稼げるかも。";
-            resultArea.style.borderColor = "#ff9900";
-        } else if (profit < 0) {
-            msg = "❌ 赤字です！捨てるか寄付を検討しましょう。";
-            resultArea.style.borderColor = "#ff0000";
+        if (profit < 0) {
+            resArea.style.borderColor = "var(--danger)"; resArea.style.backgroundColor = "#fff5f5";
+            msg = "残念ながら赤字です。送料が高いのが原因かも。無理に売らずに、地域のリサイクルや寄付を検討しましょう！";
+        } else if (hourlyWage < 900) {
+            resArea.style.borderColor = "var(--caution)"; resArea.style.backgroundColor = "#fffdec";
+            msg = "利益は出ますが、手間を考えると「時給」は低め。サクッと売るか、まとめて出品して送料を浮かせましょう！";
         } else {
-            msg = "✅ 優良案件！売却の準備を始めましょう。";
-            resultArea.style.borderColor = "#4caf50";
+            resArea.style.borderColor = "var(--success)"; resArea.style.backgroundColor = "#f6fff7";
+            msg = "素晴らしい！これは売る価値あり。ランチ1回分、またはカフェの新作ラテ数杯分のプチ贅沢が楽しめますよ♪";
         }
-        document.getElementById('status-msg').innerText = msg;
+        document.getElementById('status-msg').innerText = "【AI診断】 " + msg;
     }
 </script>
 
