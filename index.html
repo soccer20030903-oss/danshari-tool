@@ -8,6 +8,7 @@
     <link rel="apple-touch-icon" href="icon.png">
     <meta name="apple-mobile-web-app-title" content="断捨離チェッカー">
     <style>
+        /* ここはデザインの命令を書く場所です */
         :root {
             --primary: #ff4b2b;
             --secondary: #2c3e50;
@@ -126,6 +127,15 @@
 </header>
 
 <div class="container">
+    <div class="card" style="background: #f0f7ff; border: 1px solid #cce5ff;">
+        <h2 style="color: #004085; border-left-color: #004085; margin-bottom: 10px;">💡 かんたん3ステップ</h2>
+        <ol style="font-size: 0.85rem; padding-left: 20px; line-height: 1.6; margin: 0;">
+            <li><strong>調べる：</strong> 商品名を入力して相場をチェック！</li>
+            <li><strong>比べる：</strong> 価格と送料を選んで利益を比較診断。</li>
+            <li><strong>決める：</strong> 利益が出るならフリマへ、手間なら買取へGO！</li>
+        </ol>
+    </div>
+
     <div class="card">
         <h2>① 相場をチェックする</h2>
         <input type="text" id="keyword" placeholder="例：iPhone、参考書、スニーカー">
@@ -144,10 +154,10 @@
 
         <label style="font-size: 0.8rem; font-weight: bold;">【全国共通】送料の目安</label>
         <div class="shipping-presets">
-            <button class="preset-btn" onclick="setShipping(210)"><strong>210円 (ネコポス)</strong>本、Tシャツ</button>
-            <button class="preset-btn" onclick="setShipping(520)"><strong>520円 (コンパクト)</strong>食器、厚手の服</button>
-            <button class="preset-btn" onclick="setShipping(750)"><strong>750円 (60サイズ)</strong>靴、バッグ</button>
-            <button class="preset-btn" onclick="setShipping(1050)"><strong>1,050円〜 (大型)</strong>家電、コート</button>
+            <button class="preset-btn" onclick="setShipping(210)"><strong>210円</strong>(本、Tシャツ等)</button>
+            <button class="preset-btn" onclick="setShipping(520)"><strong>520円</strong>(食器、厚手の服)</button>
+            <button class="preset-btn" onclick="setShipping(750)"><strong>750円</strong>(靴、バッグ等)</button>
+            <button class="preset-btn" onclick="setShipping(1050)"><strong>1,050円〜</strong>(家電、コート等)</button>
         </div>
         <input type="number" id="shipping" value="210">
 
@@ -214,8 +224,6 @@
         document.getElementById('comparison-body').innerHTML = html;
         document.getElementById('result-area').style.display = 'block';
 
-        // --- 買取サービスの自動選定ロジック ---
-        // A8.netのコードから「リンクURL」と「計測用ドットURL」を分けて取り出しました
         let affName = "ブックオフ";
         let affLink = "https://px.a8.net/svt/ejp?a8mat=4AX38G+61B8KY+3NFE+61JSH";
         let affDot = "https://www19.a8.net/0.gif?a8mat=4AX38G+61B8KY+3NFE+61JSH";
