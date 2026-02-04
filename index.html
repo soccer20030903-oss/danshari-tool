@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>断捨離・相場一括チェッカー | 賢く片付ける主婦・学生の味方</title>
-<link rel="icon" href="icon.png" type="image/png">
-<link rel="apple-touch-icon" href="icon.png">
-<meta name="apple-mobile-web-app-title" content="断捨離チェッカー">
+    <title>断捨離・利益比較チェッカー | 賢く片付ける主婦・学生の味方</title>
+    <link rel="icon" href="icon.png" type="image/png">
+    <link rel="apple-touch-icon" href="icon.png">
+    <meta name="apple-mobile-web-app-title" content="断捨離チェッカー">
     <style>
         :root {
             --primary: #ff4b2b;
@@ -48,13 +48,11 @@
             padding-left: 12px;
         }
 
-        /* 検索セクション */
-        input[type="text"], input[type="number"], select {
+        input[type="text"], input[type="number"] {
             width: 100%; padding: 14px; border: 2px solid #f0f0f0;
             border-radius: 12px; font-size: 1rem; margin-bottom: 15px;
             box-sizing: border-box; background: #fafafa;
         }
-        input:focus { border-color: var(--primary); background: #fff; outline: none; }
 
         .button-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .search-btn {
@@ -67,7 +65,6 @@
         .amazon { background: #232f3e; }
         .surugaya { background: #ff9900; }
 
-        /* 送料クイック選択 */
         .shipping-presets {
             display: grid; grid-template-columns: 1fr 1fr;
             gap: 10px; margin-bottom: 20px;
@@ -86,30 +83,36 @@
             font-weight: bold; font-size: 1.2rem; cursor: pointer;
             margin-top: 10px; transition: 0.3s;
         }
-        .calc-btn:hover { background: #000; transform: translateY(-2px); }
 
-        /* 結果エリア */
         #result-area {
-            margin-top: 25px; padding: 25px; border-radius: 20px;
-            display: none; text-align: center; border: 2px solid transparent;
+            margin-top: 25px; display: none; text-align: center;
         }
-        .profit-val { font-size: 2.5rem; font-weight: bold; margin: 10px 0; }
-        .wage-val { font-size: 1.1rem; font-weight: bold; margin-bottom: 15px; opacity: 0.8; }
-        .ai-msg {
-            font-size: 0.9rem; line-height: 1.6;
-            background: rgba(255,255,255,0.8); padding: 15px; border-radius: 15px;
+        .comparison-table {
+            width: 100%; border-collapse: collapse; margin-top: 15px;
+            background: #fff; border-radius: 15px; overflow: hidden;
+            border: 1px solid #eee;
+        }
+        .comparison-table th, .comparison-table td {
+            padding: 15px; border-bottom: 1px solid #eee; text-align: center;
+        }
+        .comparison-table th { background: #f8f9fa; font-size: 0.8rem; color: #666; }
+        .best-row { background: #f6fff7; font-weight: bold; color: var(--success); }
+
+        .advice-box {
+            margin-top: 15px; font-size: 0.85rem; line-height: 1.6;
+            padding: 18px; border-radius: 15px; text-align: left;
+        }
+        .aff-button {
+            display: block; background: #ff4b2b; color: white;
+            text-decoration: none; padding: 12px; border-radius: 10px;
+            font-weight: bold; margin-top: 12px; text-align: center;
         }
 
-        /* アフィリエイト・収益化枠 */
-        .affiliate-card {
-            background: #fff9f0; border: 2px dashed #ff9900;
-            border-radius: 20px; padding: 20px; margin-top: 20px; text-align: center;
-        }
-        .affiliate-card h3 { font-size: 1rem; color: #e67e22; margin: 0 0 10px; }
-        .aff-link {
-            display: inline-block; background: #ff9900; color: white;
-            padding: 12px 25px; border-radius: 30px; text-decoration: none;
-            font-weight: bold; font-size: 0.9rem; margin-top: 10px;
+        .note-copy-btn {
+            width: 100%; background: #00b900; color: white;
+            border: none; padding: 12px; border-radius: 12px;
+            font-weight: bold; font-size: 0.9rem; cursor: pointer;
+            margin-top: 20px;
         }
 
         footer { padding: 3rem 0; color: #bbb; font-size: 0.8rem; text-align: center; }
@@ -118,8 +121,8 @@
 <body>
 
 <header>
-    <h1>断捨離・相場一括チェッカー</h1>
-    <p>家を片付けたい主婦・学生のための「いくらで売れる？」診断</p>
+    <h1>断捨離・利益比較チェッカー</h1>
+    <p>家を片付けたい主婦・学生のための「どこで売る？」診断</p>
 </header>
 
 <div class="container">
@@ -135,56 +138,46 @@
     </div>
 
     <div class="card">
-        <h2>② 利益・時給を計算する</h2>
-        
+        <h2>② 3社の利益をまとめて計算</h2>
         <label style="font-size: 0.8rem; font-weight: bold;">販売予定価格 (円)</label>
         <input type="number" id="price" placeholder="調べた相場を入力">
 
-        <label style="font-size: 0.8rem; font-weight: bold;">【ガイド】送料を選んでください</label>
+        <label style="font-size: 0.8rem; font-weight: bold;">【全国共通】送料の目安</label>
         <div class="shipping-presets">
-            <button class="preset-btn" onclick="setShipping(210)"><strong>210円 (ネコポス)</strong>Tシャツ、アクセ、本</button>
-            <button class="preset-btn" onclick="setShipping(520)"><strong>520円 (コンパクト)</strong>厚手の服、食器など</button>
-            <button class="preset-btn" onclick="setShipping(750)"><strong>750円 (60サイズ)</strong>靴、バッグ、おもちゃ</button>
-            <button class="preset-btn" onclick="setShipping(1050)"><strong>1,050円〜 (大型)</strong>家電、コート、まとめ売り</button>
+            <button class="preset-btn" onclick="setShipping(210)"><strong>210円 (ネコポス)</strong>本、Tシャツ</button>
+            <button class="preset-btn" onclick="setShipping(520)"><strong>520円 (コンパクト)</strong>食器、厚手の服</button>
+            <button class="preset-btn" onclick="setShipping(750)"><strong>750円 (60サイズ)</strong>靴、バッグ</button>
+            <button class="preset-btn" onclick="setShipping(1050)"><strong>1,050円〜 (大型)</strong>家電、コート</button>
         </div>
-
-        <label style="font-size: 0.8rem; font-weight: bold;">送料＋梱包費 合計 (円)</label>
         <input type="number" id="shipping" value="210">
 
-        <label style="font-size: 0.8rem; font-weight: bold;">販売先の手数料</label>
-        <select id="platform">
-            <option value="0.1">メルカリ / ヤフオク (10%)</option>
-            <option value="0.05">Yahoo!フリマ (5%)</option>
-            <option value="0.088">ヤフオク (プレミアム会員 8.8%)</option>
-        </select>
-
-        <label style="font-size: 0.8rem; font-weight: bold;">作業時間 (分)</label>
-        <input type="number" id="worktime" value="30">
-
-        <button class="calc-btn" onclick="calculate()">利益を診断する</button>
+        <button class="calc-btn" onclick="calculate()">利益を比較診断！</button>
 
         <div id="result-area">
-            <div id="profit-display" class="profit-val"></div>
-            <div id="wage-display" class="wage-val"></div>
-            <div id="status-msg" class="ai-msg"></div>
+            <table class="comparison-table">
+                <thead><tr><th>アプリ</th><th>手数料</th><th>純利益</th></tr></thead>
+                <tbody id="comparison-body"></tbody>
+            </table>
+            
+            <div id="ai-advice"></div>
+
+            <button class="note-copy-btn" onclick="copyForNote()">📝 診断結果を note 用にコピー</button>
         </div>
     </div>
 
-    <div class="affiliate-card">
-        <h3>📦 出品の必需品を揃えよう</h3>
-        <p style="font-size: 0.8rem; color: #7f8c8d; margin: 0;">送料で損をしないための「厚さ測定定規」や「デジタルはかり」が人気です。</p>
-        <a href=https://amzn.to/4a9f6w3 target="_blank" class="aff-link">Amazonでベストセラーを見る</a>
+    <div class="card" style="background: #fff9f0; border: 1px dashed #ff9900; text-align: center;">
+        <h3 style="font-size: 1rem; color: #e67e22; margin: 0 0 10px;">📦 出品の必需品</h3>
+        <p style="font-size: 0.75rem; color: #7f8c8d; margin-bottom: 12px;">送料ミスをなくす「厚さ測定定規」は主婦の必需品です。</p>
+        <a href="https://amzn.to/4a9f6w3" target="_blank" style="background: #ff9900; color: white; padding: 10px 20px; border-radius: 20px; text-decoration: none; font-weight: bold; font-size: 0.8rem;">Amazonでおすすめを見る</a>
     </div>
 </div>
 
-<footer>
-    © 2026 断捨離・相場一括チェッカー - 効率的に家を片付けよう
-</footer>
+<footer>© 2026 断捨離・利益比較チェッカー</footer>
 
 <script>
     function search(type) {
         const kw = encodeURIComponent(document.getElementById('keyword').value);
-        if(!kw) return alert("まずは商品名を入力してください");
+        if(!kw) return alert("商品名を入力してください");
         let url = "";
         switch(type) {
             case 'mercari': url = `https://jp.mercari.com/search?keyword=${kw}&status=on_sale`; break;
@@ -195,41 +188,67 @@
         window.open(url, '_blank');
     }
 
-    function setShipping(val) {
-        document.getElementById('shipping').value = val;
-    }
+    function setShipping(val) { document.getElementById('shipping').value = val; }
 
     function calculate() {
         const price = Number(document.getElementById('price').value);
-        const feeRate = Number(document.getElementById('platform').value);
         const shipping = Number(document.getElementById('shipping').value);
-        const time = Number(document.getElementById('worktime').value);
-
+        const kw = document.getElementById('keyword').value;
         if(!price) return alert("価格を入力してください");
 
-        const fee = Math.floor(price * feeRate);
-        const profit = price - fee - shipping;
-        const hourlyWage = Math.round(profit / (time / 60));
+        const platforms = [
+            { name: "Yahoo!フリマ", fee: 0.05, label: "5%" },
+            { name: "メルカリ", fee: 0.10, label: "10%" },
+            { name: "楽天ラクマ", fee: 0.10, label: "10%" }
+        ];
 
-        const resArea = document.getElementById('result-area');
-        resArea.style.display = 'block';
-        document.getElementById('profit-display').innerText = `${profit.toLocaleString()} 円`;
-        document.getElementById('wage-display').innerText = `出品時給: 約 ${hourlyWage.toLocaleString()} 円`;
+        let html = "";
+        let bestProfit = -Infinity;
+        platforms.forEach(p => {
+            const profit = price - Math.floor(price * p.fee) - shipping;
+            const isBest = (p.name === "Yahoo!フリマ"); 
+            html += `<tr ${isBest ? "class='best-row'" : ""}><td>${p.name}</td><td>${p.label}</td><td>${profit.toLocaleString()} 円</td></tr>`;
+            if (profit > bestProfit) bestProfit = profit;
+        });
 
-        let msg = "";
-        if (profit < 0) {
-            resArea.style.borderColor = "var(--danger)"; resArea.style.backgroundColor = "#fff5f5";
-            msg = "残念ながら赤字です。送料が高いのが原因かも。無理に売らずに、地域のリサイクルや寄付を検討しましょう！";
-        } else if (hourlyWage < 900) {
-            resArea.style.borderColor = "var(--caution)"; resArea.style.backgroundColor = "#fffdec";
-            msg = "利益は出ますが、手間を考えると「時給」は低め。サクッと売るか、まとめて出品して送料を浮かせましょう！";
-        } else {
-            resArea.style.borderColor = "var(--success)"; resArea.style.backgroundColor = "#f6fff7";
-            msg = "素晴らしい！これは売る価値あり。ランチ1回分、またはカフェの新作ラテ数杯分のプチ贅沢が楽しめますよ♪";
+        document.getElementById('comparison-body').innerHTML = html;
+        document.getElementById('result-area').style.display = 'block';
+
+        // --- 買取サービスの自動選定ロジック ---
+        // A8.netのコードから「リンクURL」と「計測用ドットURL」を分けて取り出しました
+        let affName = "ブックオフ";
+        let affLink = "https://px.a8.net/svt/ejp?a8mat=4AX38G+61B8KY+3NFE+61JSH";
+        let affDot = "https://www19.a8.net/0.gif?a8mat=4AX38G+61B8KY+3NFE+61JSH";
+        
+        if (kw.match(/本|漫画|マンガ|コミック|文庫|CD|DVD|ゲーム|ソフト/)) {
+            affName = "ネットオフ";
+            affLink = "https://px.a8.net/svt/ejp?a8mat=4AX38G+633JEA+8GQ+I22S1";
+            affDot = "https://www12.a8.net/0.gif?a8mat=4AX38G+633JEA+8GQ+I22S1";
         }
-        document.getElementById('status-msg').innerText = "【AI診断】 " + msg;
+
+        const adviceArea = document.getElementById('ai-advice');
+        if (bestProfit <= 500) { 
+            adviceArea.innerHTML = `
+                <div class="advice-box" style="border: 2px solid var(--danger); background: #fff5f5;">
+                    <p style="color: var(--danger); font-weight: bold; margin: 0;">⚠️ フリマだと手残りが少ないです！</p>
+                    <p style="font-size: 0.8rem; margin-top: 5px;">送料や出品の手間を考えると、<b>${affName}の宅配買取</b>で一気に片付けるのが賢い選択かもしれません。</p>
+                    <a href="${affLink}" target="_blank" rel="nofollow" class="aff-button">【無料】${affName}でまとめて売る</a>
+                    <img border="0" width="1" height="1" src="${affDot}" alt="">
+                </div>`;
+        } else {
+            adviceArea.innerHTML = `
+                <div class="advice-box" style="border: 2px solid var(--success); background: #f6fff7;">
+                    <p style="color: var(--success); font-weight: bold; margin: 0;">✨ 素晴らしい！フリマがおトクです</p>
+                    <p style="font-size: 0.8rem; margin-top: 5px;">この商品は利益がしっかり出ますね。手数料の安い<b>Yahoo!フリマ</b>が一番おトクでおすすめです！</p>
+                </div>`;
+        }
+    }
+
+    function copyForNote() {
+        const price = document.getElementById('price').value;
+        const text = `【断捨離・利益比較診断】\n\n販売予定価格：${price}円\n一番手残りが多いのは「Yahoo!フリマ」でした！\n\n#断捨離 #メルカリ #フリマアプリ比較 #断捨離チェッカー`;
+        navigator.clipboard.writeText(text).then(() => alert("note用にコピーしました！"));
     }
 </script>
-
 </body>
 </html>
